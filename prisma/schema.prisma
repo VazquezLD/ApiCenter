@@ -1,0 +1,38 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        String    @id @default(uuid())
+  email     String    @unique
+  password  String
+  name      String?
+  projects  Project[] // Relación: Un usuario puede tener muchos proyectos
+  createdAt DateTime  @default(now())
+}
+
+model Project {
+  id          String   @id @default(uuid())
+  name        String
+  baseUrl     String
+  description String?
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  logs        Log[]    // Relación: Un proyecto tiene muchos registros de status
+  createdAt   DateTime @default(now())
+}
+
+model Log {
+  id         String   @id @default(uuid())
+  statusCode Int
+  statusText String
+  projectId  String
+  project    Project  @relation(fields: [projectId], references: [id])
+  checkedAt  DateTime @default(now())
+}
