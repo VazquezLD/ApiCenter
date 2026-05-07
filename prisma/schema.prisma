@@ -8,6 +8,14 @@ datasource db {
   provider = "postgresql"
 }
 
+enum HttpMethod {
+  GET
+  POST
+  PUT
+  DELETE
+  PATCH
+}
+
 model User {
   id        String    @id @default(uuid())
   email     String    @unique
@@ -22,6 +30,9 @@ model Project {
   name        String
   baseUrl     String
   description String?
+  tags        String[]
+  method      HttpMethod @default(GET)
+  lastStatus  String @default("PENDIENTE")
   userId      String
   user        User     @relation(fields: [userId], references: [id])
   logs        Log[]    // Relación: Un proyecto tiene muchos registros de status
