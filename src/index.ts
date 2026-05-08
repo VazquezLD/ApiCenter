@@ -3,6 +3,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
 import router from './routes/router';
+import { swaggerDocs } from './config/swagger';
 
 dotenv.config();
 
@@ -25,7 +26,7 @@ app.get('/api/v1/health', (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-
+swaggerDocs(app, PORT);
 app.listen(PORT, () => {
   console.log(`🚀 Servidor listo en http://localhost:${PORT}`);
 });
