@@ -19,6 +19,20 @@ export const createProject = async (req: AuthRequest, res: Response): Promise<vo
             res.status(401).json({ error: "Usuario no autenticado" });
             return;
         }
+
+        // Restricción: Máximo 9 proyectos por usuario
+        const projectCount = await prisma.project.count({
+            where: { userId }
+        });
+
+        if (projectCount >= 9) {
+            res.status(403).json({ 
+                error: "Límite alcanzado", 
+                message: "Has alcanzado el límite máximo de 9 proyectos permitidos por cuenta." 
+            });
+            return;
+        }
+
         const validation = createProjectSchema.safeParse(req.body);
         
         if (!validation.success) {
@@ -67,16 +81,28 @@ export const getProjects = async (req: AuthRequest, res: Response): Promise<void
             where: {
                 userId: userId
             },
+            include: {
+                logs: {
+                    orderBy: {
+                        createdAt: 'desc'
+                    },
+                    take: 1
+                }
+            },
             orderBy: {
                 createdAt: 'desc'
             }
         });
 
-        if (projects.length > 0){
-            res.status(200).json({projects})
-        }else{
-            res.status(200).json({message: 'No hay proyectos cargados aún.'})
-        }
+        // Mapear para incluir la última latencia directamente en el objeto
+        const projectsWithLatency = projects.map(p => ({
+            ...p,
+            lastResponseTime: p.logs.length > 0 ? p.logs[0].responseTime : null,
+            // Aseguramos que el status refleje el último chequeo si existe
+            currentStatus: p.logs.length > 0 ? (p.logs[0].isOnline ? 'online' : 'offline') : 'pending'
+        }));
+
+        res.status(200).json(projectsWithLatency);
 
     } catch (error) {
         console.error(error);

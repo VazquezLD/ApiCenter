@@ -4,6 +4,6 @@ import projectRoutes from './project.routes.js'
 
 const router = Router();
 router.use('/auth', authRoutes);
-router.use('/project', projectRoutes)
+router.use('/projects', projectRoutes);
 
 export default router;
