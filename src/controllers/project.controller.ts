@@ -95,7 +95,7 @@ export const getProjects = async (req: AuthRequest, res: Response): Promise<void
         });
 
         // Mapear para incluir la última latencia directamente en el objeto
-        const projectsWithLatency = projects.map(p => ({
+        const projectsWithLatency = projects.map((p: any) => ({
             ...p,
             lastResponseTime: p.logs.length > 0 ? p.logs[0].responseTime : null,
             // Aseguramos que el status refleje el último chequeo si existe
